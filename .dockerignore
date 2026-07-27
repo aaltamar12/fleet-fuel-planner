@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+.git/
+data/geocode_run.log
+data/city_geocode_cache.json.tmp

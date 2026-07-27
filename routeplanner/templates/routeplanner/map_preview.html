@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Route + fuel stops</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    html, body { height: 100%; margin: 0; font-family: system-ui, sans-serif; }
+    #summary {
+      position: absolute; z-index: 1000; top: 10px; left: 50px;
+      background: white; padding: 8px 14px; border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3); font-size: 14px;
+    }
+    #map { height: 100%; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="summary">
+    <strong>{{ total_distance_miles }} mi</strong> &middot;
+    {{ total_gallons_needed }} gal needed &middot;
+    <strong>${{ total_fuel_cost_usd }}</strong> total fuel cost
+  </div>
+  <div id="map"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const routeGeometry = {{ route_geometry_json|safe }};
+    const stops = {{ stops_json|safe }};
+    const start = {{ start_json|safe }};
+    const end = {{ end_json|safe }};
+
+    const map = L.map('map');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(map);
+
+    const line = L.polyline(routeGeometry, { color: '#0066ff', weight: 4 }).addTo(map);
+    map.fitBounds(line.getBounds(), { padding: [30, 30] });
+
+    L.marker([start.latitude, start.longitude])
+      .addTo(map)
+      .bindPopup('Start');
+    L.marker([end.latitude, end.longitude])
+      .addTo(map)
+      .bindPopup('Destination');
+
+    stops.forEach((stop, i) => {
+      L.circleMarker([stop.latitude, stop.longitude], {
+        radius: 8, color: '#cc6600', fillColor: '#ff9900', fillOpacity: 0.9,
+      })
+        .addTo(map)
+        .bindPopup(
+          `<strong>Stop ${i + 1}: ${stop.station_name}</strong><br>` +
+          `${stop.city}, ${stop.state}<br>` +
+          `mile ${stop.mile_marker} &middot; $${stop.price_per_gallon}/gal<br>` +
+          `${stop.gallons_purchased} gal &middot; $${stop.cost_usd}`
+        );
+    });
+  </script>
+</body>
+</html>

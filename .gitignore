@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+*.egg-info/
+.DS_Store
+data/geocode_run.log

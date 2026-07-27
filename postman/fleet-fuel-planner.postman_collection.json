@@ -1,0 +1,157 @@
+{
+  "info": {
+    "name": "Fleet Fuel Planner API",
+    "description": "Route planning + optimal fuel stop API. Import this collection and set the `base_url` variable (defaults to http://localhost:8000).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" }
+  ],
+  "item": [
+    {
+      "name": "Strategy comparison - LA to NYC",
+      "description": "Same route, same body, only `strategy` changes. Run 'No flag' first, then either flagged request, and compare stop count / total_fuel_cost_usd in the responses.",
+      "item": [
+        {
+          "name": "1. No flag = default (balanced)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Los Angeles, CA\",\n  \"end\": \"New York, NY\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        },
+        {
+          "name": "2. With flag: strategy=cheapest_fuel",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Los Angeles, CA\",\n  \"end\": \"New York, NY\",\n  \"strategy\": \"cheapest_fuel\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        },
+        {
+          "name": "2b. With flag: strategy=fewest_stops",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Los Angeles, CA\",\n  \"end\": \"New York, NY\",\n  \"strategy\": \"fewest_stops\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Other routes",
+      "item": [
+        {
+          "name": "Short trip (no stop needed) - Dallas to Austin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Dallas, TX\",\n  \"end\": \"Austin, TX\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        },
+        {
+          "name": "Explicit coordinates (skips geocoding)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start_latitude\": 34.0522,\n  \"start_longitude\": -118.2437,\n  \"end_latitude\": 41.8781,\n  \"end_longitude\": -87.6298\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error cases",
+      "item": [
+        {
+          "name": "Error - missing start/end (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        },
+        {
+          "name": "Error - ungeocodable place (422)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"asdkjhaskjdhaskjdh nowhere\",\n  \"end\": \"New York, NY\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        },
+        {
+          "name": "Error - invalid strategy (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Los Angeles, CA\",\n  \"end\": \"New York, NY\",\n  \"strategy\": \"teleport\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/route/", "host": ["{{base_url}}"], "path": ["api", "v1", "route", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Map preview (open in browser)",
+      "item": [
+        {
+          "name": "Map - default (no flag)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/route/map/?start=Los Angeles, CA&end=New York, NY",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "route", "map", ""],
+              "query": [
+                { "key": "start", "value": "Los Angeles, CA" },
+                { "key": "end", "value": "New York, NY" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Map - with flag (strategy=cheapest_fuel)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/route/map/?start=Los Angeles, CA&end=New York, NY&strategy=cheapest_fuel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "route", "map", ""],
+              "query": [
+                { "key": "start", "value": "Los Angeles, CA" },
+                { "key": "end", "value": "New York, NY" },
+                { "key": "strategy", "value": "cheapest_fuel" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
